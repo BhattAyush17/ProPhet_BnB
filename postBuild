@@ -1,2 +1,2 @@
-# postBuild
+#!/bin/bash
 apt-get update && apt-get install -y libproj-dev proj-data proj-bin
