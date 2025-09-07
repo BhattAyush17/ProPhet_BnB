@@ -12,7 +12,9 @@ joblib==1.4.2
 pyyaml==6.0.2
 tqdm==4.66.1
 branca==0.6.0
-
-geopandas==1.1.1
-shapely==2.0.1
-pyproj==3.5.0
+bs4==0.0.2
+prophet==1.1.5
+# Add geospatial packages only if used
+# geopandas==1.1.1
+# shapely==2.0.1
+# pyproj==3.5.0
