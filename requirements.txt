@@ -6,8 +6,8 @@ seaborn==0.13.2
 plotly==5.23.0
 folium==0.17.0
 geopandas==1.1.1
-shapely==2.1.1
-pyproj==3.6.1
+shapely==2.0.1
+pyproj==3.5.0
 streamlit==1.38.0
 streamlit-folium==0.10.0
 requests==2.32.4
