@@ -5,4 +5,22 @@ dependencies:
   - python=3.10
   - streamlit
   - pandas
+  - numpy
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - plotly
+  - folium
+  - geopandas
+  - shapely
   - pyproj
+  - pydeck
+  - mapclassify
+  - streamlit-folium
+  - beautifulsoup4
+  - requests
+  - joblib
+  - pyyaml
+  - python-dateutil
+  - tqdm
+  - branca
