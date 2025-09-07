@@ -1,6 +1,5 @@
 ProphetBnB: Airbnb Price Prediction & Host Segmentation
 
-<!-- Optional: replace with actual logo -->
 
 ProphetBnB is a comprehensive Python project that predicts Airbnb listing prices and segments hosts using clustering. It provides interactive visualizations and a Streamlit web app for easy exploration of Airbnb listings.
 
@@ -131,7 +130,7 @@ Kaggle Airbnb Datasets
 
 Dependencies
 
-Python 3.11+
+Python 3.10+
 
 pandas, numpy, scikit-learn
 
