@@ -14,7 +14,7 @@ tqdm==4.66.1
 branca==0.6.0
 bs4==0.0.2
 prophet==1.1.5
-# Add geospatial packages only if used
+# Add geospatial packages only if used(heavy, may cause deployment issues)
 # geopandas==1.1.1
 # shapely==2.0.1
 # pyproj==3.5.0
