@@ -61,7 +61,7 @@ div[data-baseweb="select"] > div {
   font-weight: 600;
   letter-spacing: 0.5px;
 }
-
+better view
 .stTabs [data-baseweb="tab-list"] {
   gap: .5rem;
 }
