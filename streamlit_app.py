@@ -19,16 +19,15 @@ from src.data_sources.direct_csv_url_source import DirectCSVURLSource
 from src.data_sources.external_site_source import ExternalSiteSource
 from src.metrics import compute_metrics
 
-# ---------- PROFESSIONAL LANDING PAGE AND NAVIGATION ----------
 st.set_page_config(page_title="ProPhet-BnB", layout="wide")
 inject_base_css()
 
-# Custom CSS for modern professional look
+# ---------- Custom CSS for Professional Look ----------
 st.markdown("""
     <style>
-    body, .stApp {
-        background-color: #f6f8fa;
-        font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    .stApp {
+        background-color: #f6f8fa !important;
+        font-family: 'Segoe UI','Roboto','Arial',sans-serif;
         color: #212529;
     }
     h1, h2, h3, h4 {
@@ -36,11 +35,11 @@ st.markdown("""
         font-weight: 600;
     }
     .main-title {
-        padding-top: 12px;
-        padding-bottom: 0px;
-        font-size: 2.7em;
+        font-size: 2.6em;
         text-align: center;
+        margin-top: 18px;
         letter-spacing: 0.5px;
+        margin-bottom: 0px;
     }
     .description {
         color: #505A6A;
@@ -52,8 +51,8 @@ st.markdown("""
     .steps-bar {
         background: #e9ecef;
         border-radius: 7px;
-        padding: 13px 0 13px 0;
-        margin-bottom: 18px;
+        padding: 12px 0;
+        margin-bottom: 16px;
         text-align: center;
         font-size: 1em;
         color: #555;
@@ -63,11 +62,12 @@ st.markdown("""
         font-size: 1.07em;
         color: #183153;
         margin-bottom: 10px;
+        margin-top: 12px;
     }
     .sidebar-help {
         background: #f4f6fb;
         border-radius: 8px;
-        margin-bottom: 18px;
+        margin-bottom: 14px;
         padding: 10px 16px;
         color: #22355a;
         font-size: 0.97em;
@@ -82,6 +82,11 @@ st.markdown("""
         margin-top: 20px;
         color: #35527c;
     }
+    .stTabs [data-baseweb="tab-list"] {
+        background: #f3f6f9;
+        border-radius: 8px;
+        padding: 0.5em;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -94,8 +99,8 @@ st.markdown(
 )
 st.markdown(
     "<div class='steps-bar'>"
-    "<b>Step 1:</b> Select Data Source &nbsp;&nbsp;|&nbsp;&nbsp; "
-    "<b>Step 2:</b> Adjust Filters &nbsp;&nbsp;|&nbsp;&nbsp; "
+    "<b>Step 1:</b> Select Data Source &nbsp;|&nbsp; "
+    "<b>Step 2:</b> Adjust Filters &nbsp;|&nbsp; "
     "<b>Step 3:</b> Review Analytics"
     "</div>", unsafe_allow_html=True
 )
@@ -104,14 +109,15 @@ with st.sidebar:
     st.markdown("<div class='sidebar-section'><b>Getting Started</b></div>", unsafe_allow_html=True)
     st.markdown(
         "<div class='sidebar-help'>"
-        "• Choose the source of your property data.<br>"
-        "• Adjust filters to match your preferences.<br>"
-        "• Click <b>Analyze Listings</b> to start.<br><br>"
+        "1. Choose property data source.<br>"
+        "2. Adjust filters to match your preferences.<br>"
+        "3. Click <b>Analyze Listings</b> to start.<br>"
         "For best results, use InsideAirbnb or a clean CSV."
         "</div>", unsafe_allow_html=True
     )
 
 st.sidebar.header("1. Data Source")
+st.sidebar.caption("Select how you'd like to provide listing data. ℹ️")
 source_mode = st.sidebar.radio(
     "Choose Source Type",
     [
@@ -121,6 +127,36 @@ source_mode = st.sidebar.radio(
         "Website (Custom Scraper)"
     ]
 )
+st.sidebar.caption("Each source type loads listings differently. Hover for help.")
+
+# ------------- DEMO/EXAMPLE DATA BUTTON -------------
+def get_demo_df():
+    # 10 rows of example synthetic Airbnb-style data, covers most columns
+    return pd.DataFrame({
+        "id": range(1, 11),
+        "name": [f"Demo Home {i}" for i in range(1, 11)],
+        "neighbourhood": ["Downtown", "Uptown", "Central", "Beach", "Suburb", "Park", "Museum", "Old Town", "Lake", "Market"],
+        "room_type": ["Entire home", "Private room", "Shared room", "Entire home", "Private room", "Entire home", "Private room", "Shared room", "Entire home", "Private room"],
+        "price": [120, 80, 45, 200, 90, 130, 60, 30, 170, 100],
+        "review_scores_rating": [4.8, 4.5, 4.2, 4.9, 4.0, 4.7, 4.6, 3.9, 4.8, 4.4],
+        "image_url": ["https://picsum.photos/200/150?random=%d" % i for i in range(1, 11)],
+        "num_reviews": [25, 40, 12, 60, 10, 15, 30, 8, 50, 20],
+        "availability_365": [320, 180, 90, 360, 200, 300, 150, 60, 330, 210],
+        "amenities_count": [12, 8, 6, 15, 7, 10, 5, 4, 13, 9],
+        "total_score": [9.7, 8.2, 7.3, 9.8, 7.8, 8.9, 8.0, 6.7, 9.5, 8.3],
+        "recommendation_reason": ["Great reviews"]*10
+    })
+
+# Use st.session_state to store demo mode
+if "demo_mode" not in st.session_state:
+    st.session_state["demo_mode"] = False
+
+# Add tooltip/caption for demo button
+st.sidebar.caption("Not sure where to start? Try demo mode for instant results.")
+if st.sidebar.button("Load Example Data"):
+    st.session_state["df_base"] = get_demo_df()
+    st.session_state["source_label"] = "Demo Example Data"
+    st.session_state["demo_mode"] = True
 
 uploaded_listings = uploaded_reviews = None
 site_url = csv_url = ""
@@ -132,6 +168,7 @@ catalog = None
 if source_mode == "InsideAirbnb Snapshot":
     with st.sidebar:
         st.markdown("#### InsideAirbnb City/Date Picker")
+        st.caption("Pick country, region, city, and date. ℹ️")
         @st.cache_data(show_spinner=False)
         def get_catalog():
             return scrape_catalog()
@@ -141,30 +178,31 @@ if source_mode == "InsideAirbnb Snapshot":
             st.error(f"Could not load city catalog: {e}")
             st.stop()
         countries = sorted(catalog.keys())
-        country = st.selectbox("Country", countries)
-        region = st.selectbox("Region", sorted(catalog[country].keys()))
-        city = st.selectbox("City", sorted(catalog[country][region].keys()))
+        country = st.selectbox("Country", countries, help="Select your country for listing data.")
+        region = st.selectbox("Region", sorted(catalog[country].keys()), help="Select the region within your country.")
+        city = st.selectbox("City", sorted(catalog[country][region].keys()), help="Choose the city to analyze.")
         city_entry = catalog[country][region][city]
         dates = sorted(city_entry.versions.keys(), reverse=True)
-        date = st.selectbox("Snapshot Date", dates, index=0)
+        date = st.selectbox("Snapshot Date", dates, index=0, help="Choose the dataset date (latest recommended).")
         st.caption(f"Latest available date: {city_entry.latest_date}")
-        force_download = st.checkbox("Force Fresh Download", value=False)
-        custom_url = st.text_input("Custom Listings URL (override)", "", placeholder="https://insideairbnb.com/data/.../listings.csv.gz")
+        force_download = st.checkbox("Force Fresh Download", value=False, help="Force download instead of using cache.")
+        custom_url = st.text_input("Custom Listings URL (override)", "", placeholder="https://insideairbnb.com/data/.../listings.csv.gz", help="Paste a custom listings CSV URL if you want.")
         version = city_entry.versions[date]
 elif source_mode == "Local CSV Upload":
-    uploaded_listings = st.sidebar.file_uploader("Listings CSV", type=["csv"])
-    uploaded_reviews = st.sidebar.file_uploader("Reviews CSV (optional)", type=["csv"])
+    uploaded_listings = st.sidebar.file_uploader("Listings CSV", type=["csv"], help="Upload your own listings CSV file.")
+    uploaded_reviews = st.sidebar.file_uploader("Reviews CSV (optional)", type=["csv"], help="Optionally upload reviews CSV for more analytics.")
 elif source_mode == "Direct CSV URL":
-    csv_url = st.sidebar.text_input("Paste Direct CSV URL", "", placeholder="https://.../listings.csv")
+    csv_url = st.sidebar.text_input("Paste Direct CSV URL", "", placeholder="https://.../listings.csv", help="Paste the direct CSV URL from a trusted source.")
 elif source_mode == "Website (Custom Scraper)":
-    site_url = st.sidebar.text_input("Paste Listing Website Link", "", placeholder="https://www.example.com/listings")
+    site_url = st.sidebar.text_input("Paste Listing Website Link", "", placeholder="https://www.example.com/listings", help="Paste a link to a website with listings.")
     with st.sidebar.expander("Advanced Scraper Settings"):
-        listing_selector = st.text_input("Listing CSS Selector", value=".listing-card")
-        price_selector = st.text_input("Price CSS Selector", value=".price")
-        name_selector = st.text_input("Name CSS Selector", value=".name")
-        image_selector = st.text_input("Image CSS Selector", value="img")
+        listing_selector = st.text_input("Listing CSS Selector", value=".listing-card", help="CSS selector for each listing card.")
+        price_selector = st.text_input("Price CSS Selector", value=".price", help="CSS selector for price element.")
+        name_selector = st.text_input("Name CSS Selector", value=".name", help="CSS selector for listing name.")
+        image_selector = st.text_input("Image CSS Selector", value="img", help="CSS selector for image.")
 
 st.sidebar.header("2. Adjust Filters")
+st.sidebar.caption("Filter listings by price, reviews, ratings, and more. ℹ️")
 default_filters = {
     "price_mode": "Budget",
     "custom_price_range": (0.0, 10000.0),
@@ -177,14 +215,14 @@ default_filters = {
 }
 uf = st.session_state.get("user_filters", default_filters.copy())
 
-uf["suggestions"] = st.sidebar.slider("Suggestions to Show", 3, 10, uf.get("suggestions", 6))
-uf["price_mode"] = st.sidebar.radio("Price Band", ["Budget", "Comfort", "Premium", "Custom Range"], index=["Budget","Comfort","Premium","Custom Range"].index(uf.get("price_mode", "Budget")))
+uf["suggestions"] = st.sidebar.slider("Suggestions to Show", 3, 10, uf.get("suggestions", 6), help="Number of top listings to show in recommendations.")
+uf["price_mode"] = st.sidebar.radio("Price Band", ["Budget", "Comfort", "Premium", "Custom Range"], index=["Budget","Comfort","Premium","Custom Range"].index(uf.get("price_mode", "Budget")), help="Select your price preference.")
 if uf["price_mode"] == "Custom Range":
-    uf["custom_price_range"] = st.sidebar.slider("Custom Price Range [$]", 0.0, 10000.0, uf.get("custom_price_range", (0.0, 10000.0)))
-uf["reviews_range"] = st.sidebar.slider("Reviews Count", 0, 1000, uf.get("reviews_range", (0, 1000)))
-uf["stars_range"] = st.sidebar.slider("Rating (Stars)", 1.0, 5.0, uf.get("stars_range", (1.0, 5.0)), 0.5)
-uf["availability_range"] = st.sidebar.slider("Availability Days", 0, 365, uf.get("availability_range", (0, 365)))
-uf["occupancy_group"] = st.sidebar.selectbox("Guest Group", ["Any", "Solo (1)", "Duo (2)", "Small group (3-4)", "Family (5-6)", "Large (7+)"], index=["Any","Solo (1)","Duo (2)","Small group (3-4)","Family (5-6)","Large (7+)"].index(uf.get("occupancy_group", "Any")))
+    uf["custom_price_range"] = st.sidebar.slider("Custom Price Range [$]", 0.0, 10000.0, uf.get("custom_price_range", (0.0, 10000.0)), help="Set your own price range for listings.")
+uf["reviews_range"] = st.sidebar.slider("Reviews Count", 0, 1000, uf.get("reviews_range", (0, 1000)), help="Filter by number of reviews.")
+uf["stars_range"] = st.sidebar.slider("Rating (Stars)", 1.0, 5.0, uf.get("stars_range", (1.0, 5.0)), 0.5, help="Minimum and maximum star rating.")
+uf["availability_range"] = st.sidebar.slider("Availability Days", 0, 365, uf.get("availability_range", (0, 365)), help="How many days per year the listing is available.")
+uf["occupancy_group"] = st.sidebar.selectbox("Guest Group", ["Any", "Solo (1)", "Duo (2)", "Small group (3-4)", "Family (5-6)", "Large (7+)"], index=["Any","Solo (1)","Duo (2)","Small group (3-4)","Family (5-6)","Large (7+)"].index(uf.get("occupancy_group", "Any")), help="How many guests will stay?")
 st.session_state["user_filters"] = uf
 
 run_clicked = st.sidebar.button("Analyze Listings", type="primary")
@@ -270,7 +308,7 @@ def load_dataset():
     raise RuntimeError("Unsupported source mode.")
 
 # ---------- MAIN CONTENT ----------
-if run_clicked:
+if run_clicked and not st.session_state.get("demo_mode", False):
     try:
         df, meta = load_dataset()
         source_label = meta.get("source_label", "")
@@ -295,9 +333,13 @@ if run_clicked:
     except Exception as e:
         st.error(f"Could not read or process data: {e}")
         st.stop()
-
-df = st.session_state.get("df_base")
-source_label = st.session_state.get("source_label", "")
+# If demo mode was activated, don't reset df from analysis
+if st.session_state.get("demo_mode", False):
+    df = st.session_state.get("df_base")
+    source_label = st.session_state.get("source_label", "")
+else:
+    df = st.session_state.get("df_base")
+    source_label = st.session_state.get("source_label", "")
 
 if df is not None:
     st.markdown(f"### Source: {source_label}")
@@ -321,6 +363,7 @@ if df is not None:
 
     with tab_overview:
         st.markdown("#### Overview & Sample")
+        st.caption("Quickly explore your first 25 listings and summary metrics. ℹ️")
         st.dataframe(df.head(25)[table_cols], height=350)
         kcols = st.columns(6)
         metrics_display = [
@@ -337,6 +380,7 @@ if df is not None:
 
     with tab_recommend:
         st.subheader("Top Suggested Listings")
+        st.caption("Ranked by your selected preferences. ℹ️")
         recomm_df = df.sort_values("total_score", ascending=False).head(uf["suggestions"])
         rec_cols = [c for c in ["id", "name", "neighbourhood", "room_type", price_col, "review_scores_rating", img_col] if c in recomm_df.columns]
         st.dataframe(recomm_df[rec_cols], height=400)
@@ -367,6 +411,7 @@ if df is not None:
 
     with tab_compare:
         st.subheader("Compare Top Picks (Visual & Images)")
+        st.caption("Visualize and compare your top recommendations side-by-side. ℹ️")
         pfig = parallel_recommendations(recomm_df, max_recs=uf["suggestions"])
         if pfig:
             st.plotly_chart(pfig, use_container_width=True)
@@ -390,7 +435,7 @@ if df is not None:
             if not row.empty and "name" in row.columns:
                 return f"{row.iloc[0]['name']} ({row.iloc[0]['neighbourhood']})"
             return str(x)
-        chosen_id = st.selectbox("Select Listing for Radar", recomm_df["id"], format_func=format_listing)
+        chosen_id = st.selectbox("Select Listing for Radar", recomm_df["id"], format_func=format_listing, help="Pick a listing to view full score breakdown.")
         rrow = recomm_df[recomm_df["id"] == chosen_id]
         if not rrow.empty:
             rrow = rrow.iloc[0]
@@ -408,18 +453,20 @@ if df is not None:
 
     with tab_scatter3d:
         st.subheader("3D Scatter Plot")
+        st.caption("Explore listings across three dimensions. ℹ️")
         numeric_cols = get_numeric_cols(df)
         if len(numeric_cols) < 3:
             st.info("Not enough numeric columns for 3D scatter plot.")
         else:
-            x_col = st.selectbox("X axis", numeric_cols, index=0, key="3d_x")
-            y_col = st.selectbox("Y axis", numeric_cols, index=1 if len(numeric_cols) > 1 else 0, key="3d_y")
-            z_col = st.selectbox("Z axis", numeric_cols, index=2 if len(numeric_cols) > 2 else 0, key="3d_z")
+            x_col = st.selectbox("X axis", numeric_cols, index=0, key="3d_x", help="Choose X-axis feature")
+            y_col = st.selectbox("Y axis", numeric_cols, index=1 if len(numeric_cols) > 1 else 0, key="3d_y", help="Choose Y-axis feature")
+            z_col = st.selectbox("Z axis", numeric_cols, index=2 if len(numeric_cols) > 2 else 0, key="3d_z", help="Choose Z-axis feature")
             color_col = st.selectbox(
                 "Color by",
                 [c for c in df.columns if df[c].nunique() < 50 and df[c].dtype == object],
                 index=0,
-                key="3d_color"
+                key="3d_color",
+                help="Color points by category"
             ) if any(df[c].nunique() < 50 and df[c].dtype == object for c in df.columns) else None
             fig3d = px.scatter_3d(
                 df,
@@ -451,7 +498,8 @@ if df is not None:
 else:
     st.markdown(
         "<div class='data-link-info'>"
-        "Paste a data link, pick a city, or upload a CSV, then hit <b>Analyze Listings</b> to begin analysis."
+        "Paste a data link, pick a city, or upload a CSV, then hit <b>Analyze Listings</b> to begin analysis.<br>"
+        "Or use Demo Mode for an instant walkthrough."
         "</div>", unsafe_allow_html=True
     )
 
