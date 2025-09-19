@@ -19,9 +19,97 @@ from src.data_sources.direct_csv_url_source import DirectCSVURLSource
 from src.data_sources.external_site_source import ExternalSiteSource
 from src.metrics import compute_metrics
 
+# ---------- PROFESSIONAL LANDING PAGE AND NAVIGATION ----------
 st.set_page_config(page_title="ProPhet-BnB", layout="wide")
 inject_base_css()
-st.markdown("<h1 style='text-align:center;margin-top:0;'>ProPhet-BnB</h1>", unsafe_allow_html=True)
+
+# Custom CSS for modern professional look
+st.markdown("""
+    <style>
+    body, .stApp {
+        background-color: #f6f8fa;
+        font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+        color: #212529;
+    }
+    h1, h2, h3, h4 {
+        color: #15395b;
+        font-weight: 600;
+    }
+    .main-title {
+        padding-top: 12px;
+        padding-bottom: 0px;
+        font-size: 2.7em;
+        text-align: center;
+        letter-spacing: 0.5px;
+    }
+    .description {
+        color: #505A6A;
+        font-size: 1.15em;
+        text-align: center;
+        margin-bottom: 18px;
+        margin-top: 0;
+    }
+    .steps-bar {
+        background: #e9ecef;
+        border-radius: 7px;
+        padding: 13px 0 13px 0;
+        margin-bottom: 18px;
+        text-align: center;
+        font-size: 1em;
+        color: #555;
+        letter-spacing: 0.3px;
+    }
+    .sidebar-section {
+        font-size: 1.07em;
+        color: #183153;
+        margin-bottom: 10px;
+    }
+    .sidebar-help {
+        background: #f4f6fb;
+        border-radius: 8px;
+        margin-bottom: 18px;
+        padding: 10px 16px;
+        color: #22355a;
+        font-size: 0.97em;
+        box-shadow: 0 1px 4px rgba(170,180,210,0.06);
+    }
+    .data-link-info {
+        background: #e3eaf5;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        font-size: 1.15em;
+        margin-top: 20px;
+        color: #35527c;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown("<h1 class='main-title'>ProPhet-BnB</h1>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='description'>"
+    "A robust platform for exploring, comparing, and analyzing Airbnb-style listings.<br>"
+    "Select your data source, set preferences, and generate actionable insights."
+    "</div>", unsafe_allow_html=True
+)
+st.markdown(
+    "<div class='steps-bar'>"
+    "<b>Step 1:</b> Select Data Source &nbsp;&nbsp;|&nbsp;&nbsp; "
+    "<b>Step 2:</b> Adjust Filters &nbsp;&nbsp;|&nbsp;&nbsp; "
+    "<b>Step 3:</b> Review Analytics"
+    "</div>", unsafe_allow_html=True
+)
+
+with st.sidebar:
+    st.markdown("<div class='sidebar-section'><b>Getting Started</b></div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='sidebar-help'>"
+        "• Choose the source of your property data.<br>"
+        "• Adjust filters to match your preferences.<br>"
+        "• Click <b>Analyze Listings</b> to start.<br><br>"
+        "For best results, use InsideAirbnb or a clean CSV."
+        "</div>", unsafe_allow_html=True
+    )
 
 st.sidebar.header("1. Data Source")
 source_mode = st.sidebar.radio(
@@ -102,9 +190,6 @@ st.session_state["user_filters"] = uf
 run_clicked = st.sidebar.button("Analyze Listings", type="primary")
 
 def find_col(df, names):
-    """
-    Return the first matching column from a list of names, using some fuzzy matching.
-    """
     for name in names:
         if name in df.columns:
             return name
@@ -184,6 +269,7 @@ def load_dataset():
         return df_local, {"source_label": f"Scraped from {site_url}", "mode": "CustomScraper"}
     raise RuntimeError("Unsupported source mode.")
 
+# ---------- MAIN CONTENT ----------
 if run_clicked:
     try:
         df, meta = load_dataset()
@@ -205,7 +291,7 @@ if run_clicked:
         df = build_recommendation_scores(df)
         st.session_state["df_base"] = df
         st.session_state["source_label"] = source_label
-        st.success(f"Loaded {len(df)} listings!")
+        st.success(f"Loaded {len(df)} listings.")
     except Exception as e:
         st.error(f"Could not read or process data: {e}")
         st.stop()
@@ -224,10 +310,17 @@ if df is not None:
     for col in [price_col, 'review_scores_rating', img_col]:
         if col and col in df.columns: table_cols.append(col)
 
-    tab_overview, tab_recommend, tab_compare, tab_scatter3d = st.tabs(["Overview", "Recommendations", "Comparison", "3D Scatter Plot"])
+    tab_overview, tab_recommend, tab_compare, tab_scatter3d = st.tabs(
+        [
+            "Overview",
+            "Recommendations",
+            "Comparison",
+            "3D Scatter Plot"
+        ]
+    )
 
     with tab_overview:
-        st.markdown("### Overview & Sample")
+        st.markdown("#### Overview & Sample")
         st.dataframe(df.head(25)[table_cols], height=350)
         kcols = st.columns(6)
         metrics_display = [
@@ -253,7 +346,7 @@ if df is not None:
             file_name="suggestions.csv",
             mime="text/csv"
         )
-        st.markdown("### Most Accurate & Optimized Option")
+        st.markdown("#### Most Accurate & Optimized Option")
         best_row = recomm_df.iloc[0]
         info = f"**{best_row.get('name', 'Listing')}**"
         if 'neighbourhood' in best_row and pd.notnull(best_row['neighbourhood']):
@@ -356,6 +449,10 @@ if df is not None:
                     st.caption(f"Price: ${price}, Rating: {rating}, Area: {location}, Amenities: {amenities}")
 
 else:
-    st.info("Paste a data link, pick a city, or upload a CSV, then hit Analyze Listings.")
+    st.markdown(
+        "<div class='data-link-info'>"
+        "Paste a data link, pick a city, or upload a CSV, then hit <b>Analyze Listings</b> to begin analysis."
+        "</div>", unsafe_allow_html=True
+    )
 
 st.caption("Supports InsideAirbnb, CSVs, direct links, and custom scraping. Use InsideAirbnb or a clean CSV for best results.")
