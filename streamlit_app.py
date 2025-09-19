@@ -30,9 +30,9 @@ st.markdown("""
         font-family: 'Segoe UI','Roboto','Arial',sans-serif;
         color: #212529;
     }
-    h1, h2, h3, h4 {
-        color: #15395b;
-        font-weight: 600;
+    h1, h2, h3, h4, h5, h6 {
+        color: #1a1a1a !important;
+        font-weight: 700;
     }
     .main-title {
         font-size: 2.6em;
@@ -40,41 +40,45 @@ st.markdown("""
         margin-top: 18px;
         letter-spacing: 0.5px;
         margin-bottom: 0px;
+        color: #0056b3 !important;
+        font-weight: 800;
     }
     .description {
-        color: #505A6A;
-        font-size: 1.15em;
+        color: #212529 !important;
+        font-size: 1.18em;
         text-align: center;
         margin-bottom: 18px;
         margin-top: 0;
     }
     .steps-bar {
-        background: #e9ecef;
+        background: #f3f6f9;
         border-radius: 7px;
-        padding: 12px 0;
+        padding: 14px 0;
         margin-bottom: 16px;
         text-align: center;
-        font-size: 1em;
-        color: #555;
+        font-size: 1.07em;
+        color: #183153;
+        font-weight: 500;
         letter-spacing: 0.3px;
     }
     .sidebar-section {
-        font-size: 1.07em;
+        font-size: 1.13em;
         color: #183153;
         margin-bottom: 10px;
         margin-top: 12px;
+        font-weight: 600;
     }
     .sidebar-help {
-        background: #f4f6fb;
+        background: #f8fafd;
         border-radius: 8px;
         margin-bottom: 14px;
-        padding: 10px 16px;
+        padding: 12px 16px;
         color: #22355a;
-        font-size: 0.97em;
-        box-shadow: 0 1px 4px rgba(170,180,210,0.06);
+        font-size: 1em;
+        box-shadow: 0 1px 4px rgba(170,180,210,0.07);
     }
     .data-link-info {
-        background: #e3eaf5;
+        background: #f0f4f8;
         border-radius: 10px;
         padding: 15px;
         text-align: center;
@@ -83,9 +87,61 @@ st.markdown("""
         color: #35527c;
     }
     .stTabs [data-baseweb="tab-list"] {
-        background: #f3f6f9;
+        background: #f8fafd;
         border-radius: 8px;
-        padding: 0.5em;
+        padding: 0.7em;
+        color: #1a1a1a !important;
+    }
+    .stTabs [aria-selected="true"] {
+        color: #0056b3 !important;
+        font-weight: bold !important;
+        background: #e3eaf5 !important;
+    }
+    .stButton>button {
+        background-color: #1976d2 !important;
+        color: #fff !important;
+        border-radius: 6px;
+        border: none;
+        font-size: 1.07em;
+        font-weight: 600;
+        padding: 0.45em 1.5em;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+    .stButton>button:disabled {
+        background-color: #cccccc !important;
+        color: #888 !important;
+    }
+    .stDownloadButton>button {
+        background-color: #0056b3 !important;
+        color: #fff !important;
+        border-radius: 6px;
+        border: none;
+        font-size: 1.03em;
+        font-weight: 600;
+        padding: 0.35em 1.2em;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+    .stCaption, .stMarkdown {
+        color: #505A6A !important;
+        font-size: 1em;
+    }
+    section[data-testid="stSidebar"] {
+        background-color: #f5f7fa !important;
+        border-right: 1.5px solid #e3eaf5 !important;
+    }
+    .stDataFrame, .stTable, .stSelectbox, .stTextInput, .stSlider, .stCheckbox {
+        background-color: #fff !important;
+        color: #212529 !important;
+    }
+    label {
+        color: #15395b !important;
+        font-weight: 500 !important;
+    }
+    .stTabs [role="tab"] h4 {
+        color: #1a1a1a !important;
+        font-weight: 700 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -131,7 +187,6 @@ st.sidebar.caption("Each source type loads listings differently. Hover for help.
 
 # ------------- DEMO/EXAMPLE DATA BUTTON -------------
 def get_demo_df():
-    # 10 rows of example synthetic Airbnb-style data, covers most columns
     return pd.DataFrame({
         "id": range(1, 11),
         "name": [f"Demo Home {i}" for i in range(1, 11)],
@@ -147,11 +202,9 @@ def get_demo_df():
         "recommendation_reason": ["Great reviews"]*10
     })
 
-# Use st.session_state to store demo mode
 if "demo_mode" not in st.session_state:
     st.session_state["demo_mode"] = False
 
-# Add tooltip/caption for demo button
 st.sidebar.caption("Not sure where to start? Try demo mode for instant results.")
 if st.sidebar.button("Load Example Data"):
     st.session_state["df_base"] = get_demo_df()
@@ -307,7 +360,6 @@ def load_dataset():
         return df_local, {"source_label": f"Scraped from {site_url}", "mode": "CustomScraper"}
     raise RuntimeError("Unsupported source mode.")
 
-# ---------- MAIN CONTENT ----------
 if run_clicked and not st.session_state.get("demo_mode", False):
     try:
         df, meta = load_dataset()
@@ -333,7 +385,6 @@ if run_clicked and not st.session_state.get("demo_mode", False):
     except Exception as e:
         st.error(f"Could not read or process data: {e}")
         st.stop()
-# If demo mode was activated, don't reset df from analysis
 if st.session_state.get("demo_mode", False):
     df = st.session_state.get("df_base")
     source_label = st.session_state.get("source_label", "")
