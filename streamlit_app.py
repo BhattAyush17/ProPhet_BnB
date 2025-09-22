@@ -168,7 +168,7 @@ with st.sidebar:
         "<li>Adjust filters to match your search goals.</li>"
         "<li><b>Click Analyze Listings</b> to find top picks and insights.</li>"
         "<li>For best results, use InsideAirbnb or a clean CSV.</li></ol>"
-        "<br><span style='color:#90caf9;'>New? Click Demo Mode for an instant walkthrough.</span>"
+        "<br><span style='color:#90caf9;'>New? Click Load Example Data for an instant walkthrough.</span>"
         "</div>", unsafe_allow_html=True
     )
 
