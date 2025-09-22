@@ -236,43 +236,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- HERO (Landing) Section ---
-st.markdown(
-    """
-    <div class='hero-section'>
-        <div class='hero-title'>ProPhet-BnB</div>
-        <div class='hero-desc'>
-            Welcome! Discover, analyze, and compare Airbnb listings and prices.<br>
-            Upload your data or select a city, tweak your search, and get instant smart recommendations.<br>
-            It's easy, visual, and designed for both hosts and travelers!
-        </div>
-        <div class='hero-steps-card'>
-            <ul class='hero-steps-list'>
-                <li>
-                    <span class='step-num'>1.</span>
-                    <span class='step-action'>Choose data source</span>
-                    <span class='step-desc'>Select Airbnb or upload your own CSV file.</span>
-                </li>
-                <li>
-                    <span class='step-num'>2.</span>
-                    <span class='step-action'>Adjust filters</span>
-                    <span class='step-desc'>Set your price, guest, date, and review preferences.</span>
-                </li>
-                <li>
-                    <span class='step-num'>3.</span>
-                    <span class='step-action'>Click Analyze</span>
-                    <span class='step-desc'>Get instant recommendations and insights.</span>
-                </li>
-            </ul>
-        </div>
-        <div class='info-caption'>
-            Supports InsideAirbnb, CSVs, direct links, and custom scraping.<br>
-            For best results, use InsideAirbnb or a clean CSV!
-        </div>
-    </div>
-    """, unsafe_allow_html=True
-)
-
 # --- SIDEBAR ---
 with st.sidebar:
     st.markdown("""
@@ -394,7 +357,45 @@ with st.sidebar:
     st.session_state["user_filters"] = uf
     run_clicked = st.button("Analyze Listings", type="primary")
 
-# ---- MAIN LOGIC (analysis, tabs, etc.) ----
+# ---- HERO SECTION FUNCTION ----
+def show_hero():
+    st.markdown(
+        """
+        <div class='hero-section'>
+            <div class='hero-title'>ProPhet-BnB</div>
+            <div class='hero-desc'>
+                Welcome! Discover, analyze, and compare Airbnb listings and prices.<br>
+                Upload your data or select a city, tweak your search, and get instant smart recommendations.<br>
+                It's easy, visual, and designed for both hosts and travelers!
+            </div>
+            <div class='hero-steps-card'>
+                <ul class='hero-steps-list'>
+                    <li>
+                        <span class='step-num'>1.</span>
+                        <span class='step-action'>Choose data source</span>
+                        <span class='step-desc'>Select Airbnb or upload your own CSV file.</span>
+                    </li>
+                    <li>
+                        <span class='step-num'>2.</span>
+                        <span class='step-action'>Adjust filters</span>
+                        <span class='step-desc'>Set your price, guest, date, and review preferences.</span>
+                    </li>
+                    <li>
+                        <span class='step-num'>3.</span>
+                        <span class='step-action'>Click Analyze</span>
+                        <span class='step-desc'>Get instant recommendations and insights.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class='info-caption'>
+                Supports InsideAirbnb, CSVs, direct links, and custom scraping.<br>
+                For best results, use InsideAirbnb or a clean CSV!
+            </div>
+        </div>
+        """, unsafe_allow_html=True
+    )
+
+# ---- UTILS ----
 def find_col(df, names):
     for name in names:
         if name in df.columns:
@@ -491,6 +492,7 @@ def load_dataset():
         return df_local, {"source_label": f"Scraped from {site_url}", "mode": "CustomScraper"}
     raise RuntimeError("Unsupported source mode.")
 
+# ---- DATA LOAD/PROCESS ----
 if run_clicked and not st.session_state.get("demo_mode", False):
     try:
         df, meta = load_dataset()
@@ -523,8 +525,13 @@ else:
     df = st.session_state.get("df_base")
     source_label = st.session_state.get("source_label", "")
 
-# ---- MAIN ANALYSIS UI ----
-if df is not None:
+# ---- CONDITIONAL HERO/RESULT RENDERING ----
+
+if (df is None) or (not run_clicked and not st.session_state.get("demo_mode", False)):
+    # Show the intro/hero block only when NOT analyzing
+    show_hero()
+else:
+    # Show only results (tabs, main card, etc.)
     st.markdown(f"<div class='main-card'><h2 style='color:#90caf9;'>Source: {source_label}</h2></div>", unsafe_allow_html=True)
 
     metrics, price_col = compute_metrics(df)
@@ -684,11 +691,4 @@ if df is not None:
                     amenities = row.get('amenities_count', 'N/A')
                     st.caption(f"Price: ${price}, Rating: {rating}, Area: {location}, Amenities: {amenities}")
         st.markdown("</div>", unsafe_allow_html=True)
-else:
-    st.markdown(
-        "<div class='main-card'>"
-        "<div class='info-caption'>Paste a data link, pick a city, or upload a CSV, then hit <b>Analyze Listings</b>.<br>"
-        "Or use <span style='color:#7bdfff;font-weight:700;'>Demo Mode</span> for a walkthrough."
-        "</div></div>", unsafe_allow_html=True
-    )
 st.caption("Supports InsideAirbnb, CSVs, direct links, and custom scraping. Use InsideAirbnb or a clean CSV for best results.")
