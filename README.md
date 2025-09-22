@@ -42,6 +42,9 @@ Welcome to ProphetBnB, a comprehensive Python project for predicting Airbnb list
 
 ---
 
+<img width="1316" height="897" alt="image" src="https://github.com/user-attachments/assets/ce05aa77-5afd-46f5-a7f6-e42256b4e26c" />
+
+
 ## Project Structure
 
 ```
@@ -162,7 +165,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Example: Streamlit App
 
-<img width="1785" height="934" alt="image" src="https://github.com/user-attachments/assets/07f2436d-8330-4537-b1bb-5f44b308d869" />
+<img width="1348" height="756" alt="image" src="https://github.com/user-attachments/assets/a53ab3d8-7c9c-4b7e-85e4-d7579f0dbd9a" />
+
+<img width="1267" height="905" alt="image" src="https://github.com/user-attachments/assets/ce83ee2c-e9cc-4c2c-a4ca-902ce8afe0f0" />
 
 
 > **How to Begin:**  
