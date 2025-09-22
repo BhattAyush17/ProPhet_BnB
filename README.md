@@ -1,158 +1,175 @@
-ProphetBnB: Airbnb Price Prediction & Host Segmentation
+# ProphetBnB: Airbnb Price Prediction & Host Segmentation
 
+https://github.com/github-copilot/chat/attachments/dc596e00-9ca8-4d6e-bb64-eb9bbce0ed42
 
-ProphetBnB is a comprehensive Python project that predicts Airbnb listing prices and segments hosts using clustering. It provides interactive visualizations and a Streamlit web app for easy exploration of Airbnb listings.
+Welcome to ProphetBnB, a comprehensive Python project for predicting Airbnb listing prices and segmenting hosts for actionable insights. ProphetBnB combines robust machine learning, interactive visualizations, and a Streamlit web app for seamless exploration of Airbnb data.
 
-Table of Contents
+---
 
-Features
+## Table of Contents
 
-Project Structure
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Dataset](#dataset)
+- [Dependencies](#dependencies)
+- [Contributing](#contributing)
+- [License](#license)
 
-Installation
+---
 
-Usage
+## Features
 
-Dataset
+### 🏷️ Price Prediction
+- Predicts Airbnb listing prices using regression models
+- Flags underpriced and overpriced listings
 
-Dependencies
+### 👥 Host Clustering
+- Segments hosts using clustering on price, reviews, and availability
+- Provides insights for targeted marketing and strategy
 
-Contributing
+### 📊 Interactive Visualizations
+- Folium maps for geographic analysis
+- Plotly charts for cluster and feature exploration
 
-License
+### 🚀 Streamlit App
+- Intuitive interface for data exploration and prediction
+- Accessible locally or via web deployment
 
-Features
+---
 
-Price Prediction
+## Project Structure
 
-Uses machine learning regression models to predict Airbnb listing prices.
-
-Identifies underpriced and overpriced listings.
-
-Host Clustering
-
-Clusters hosts based on price, reviews, and availability.
-
-Supports segmentation for marketing insights.
-
-Interactive Visualizations
-
-Folium maps for geographic distribution.
-
-Plotly charts for interactive cluster and feature analysis.
-
-Streamlit App
-
-User-friendly interface for exploring predictions and visualizations.
-
-Accessible locally or via web deployment.
-
-Project Structure
+```
 AirBnB-PriceSense/
 │
 ├── data/
 │   ├── raw/               # Original datasets (CSV/JSON)
-│   └── processed/         # Cleaned datasets ready for modeling
+│   └── processed/         # Cleaned datasets for modeling
 │
 ├── notebooks/
 │   ├── 01_EDA.ipynb       # Exploratory Data Analysis
 │   └── 02_Modeling.ipynb  # Regression & Clustering Models
 │
 ├── src/
-│   ├── data_preprocessing.py   # Data cleaning and feature engineering
-│   ├── model_training.py       # Model training and evaluation
-│   └── visualizations.py       # Plotting and map visualizations
+│   ├── data_preprocessing.py   # Data cleaning & feature engineering
+│   ├── model_training.py       # ML model training & evaluation
+│   └── visualizations.py       # Plotting & mapping functions
 │
 ├── app/
-│   └── prophetbnb_app.py       # Streamlit interactive app
+│   └── prophetbnb_app.py       # Streamlit web app
 │
 ├── assets/
-│   └── logo.png                # Optional: logo or images for README
+│   └── logo.png                # Logo/images
 │
-├── environment.yml             # Conda environment configuration
+├── environment.yml             # Conda environment
 ├── requirements.txt            # Pip dependencies
-└── README.md                   # Project overview and instructions
+└── README.md                   # Project overview
+```
 
-Installation
-1. Using Conda (Recommended)
-# Navigate to project folder
-cd C:\Testing_New_Things\AirBnB-PriceSense
+---
+
+## Installation
+
+**1. Using Conda (Recommended)**
+```bash
+# Navigate to the project folder
+cd path/to/AirBnB-PriceSense
 
 # Create environment
 conda env create -f environment.yml
 
 # Activate environment
 conda activate ProphetBnB
+```
 
-2. Using Pip / Virtualenv
+**2. Using Pip / Virtualenv**
+```bash
 # Create virtual environment
 python -m venv ProphetBnB_env
 
-# Activate environment
-ProphetBnB_env\Scripts\activate   # Windows
-source ProphetBnB_env/bin/activate # macOS/Linux
+# Activate environment (Windows)
+ProphetBnB_env\Scripts\activate
+
+# Activate environment (macOS/Linux)
+source ProphetBnB_env/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+```
 
-Usage
-1. Run Jupyter Notebooks
+---
+
+## Usage
+
+**1. Run Jupyter Notebooks**
+```bash
 jupyter notebook
+```
+- `notebooks/01_EDA.ipynb`: Explore dataset, visualize distributions
+- `notebooks/02_Modeling.ipynb`: Train regression & clustering models
 
-
-01_EDA.ipynb → Explore dataset, visualize distributions.
-
-02_Modeling.ipynb → Train regression & clustering models.
-
-2. Run Streamlit App
+**2. Run Streamlit App**
+```bash
 streamlit run app/prophetbnb_app.py
+```
+- Explore predictions and visualizations interactively
+- Supports local and web deployment
 
+---
 
-Explore predictions and visualizations interactively.
+## Dataset
 
-Supports local and web deployment.
+- Place your Airbnb dataset in `data/raw/listings.csv`
+- The script `src/data_preprocessing.py` creates a cleaned dataset in `data/processed/listings_clean.csv`
 
-Example Screenshot:
+**Recommended Dataset Sources:**
+- [Inside Airbnb](http://insideairbnb.com/get-the-data.html)
+- Any Airbnb dataset you have access to
 
-<!-- Replace with actual screenshot -->
+---
 
-Dataset
+## Dependencies
 
-Place your Airbnb dataset in data/raw/listings.csv.
+- Python 3.10+
+- pandas, numpy, scikit-learn
+- matplotlib, seaborn, plotly
+- geopandas, folium, streamlit, streamlit-folium
+- joblib, pyyaml
+- Jupyter Notebook
 
-data_preprocessing.py generates a cleaned dataset in data/processed/listings_clean.csv.
+See `environment.yml` & `requirements.txt` for full details.
 
-Recommended Dataset Sources:
+---
 
-Inside Airbnb
+## Contributing
 
-Kaggle Airbnb Datasets
+1. Fork the repository & create a new branch
+2. Make your changes & test thoroughly
+3. Submit a pull request with a clear description
 
-Dependencies
+---
 
-Python 3.10+
+## License
 
-pandas, numpy, scikit-learn
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-matplotlib, seaborn, plotly
+---
 
-geopandas, folium, streamlit, streamlit-folium
+## Example: Streamlit App
 
-joblib, pyyaml
+![ProphetBnB App Screenshot](image1)
 
-Jupyter Notebook
+> **How to Begin:**  
+> 1. Choose your data source from Airbnb, CSV, or web  
+> 2. Set your filters for price, guests, reviews, etc.  
+> 3. Click *Analyze Listings* for insights
 
-All dependencies are listed in environment.yml and requirements.txt.
+**Supported Data:**  
+- InsideAirbnb, CSV (with at least: id, name, price)
+- For best experience: use clean, recent datasets
 
-Contributing
+---
 
-Fork the repository and create a new branch.
-
-Make your changes and test thoroughly.
-
-Submit a pull request with a clear description.
-
-License
-
-This project is licensed under the MIT License. See the LICENSE
- file for details.
+*Empower your Airbnb decisions with smart predictions and interactive insights!*
