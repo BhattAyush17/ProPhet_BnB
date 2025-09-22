@@ -24,21 +24,21 @@ inject_base_css()
 
 st.markdown("""
     <style>
-    /* Dark theme background and text */
     .stApp {
-        background: linear-gradient(135deg, #212B36 0%, #1A2233 100%) !important;
+        background: radial-gradient(ellipse at 60% 10%, #263347 0%, #212b36 70%, #1a2233 100%) !important;
         color: #dde3ec !important;
+        min-height: 100vh;
     }
     section[data-testid="stSidebar"] {
-        background: #212B36 !important;
-        border-right: 2px solid #22304e !important;
+        background: #232e3b !important;
+        border-right: 2px solid #29426d !important;
     }
     .sidebar-section {
         font-size: 1.18em; color: #90caf9; margin-bottom: 8px; margin-top: 8px; font-weight: 800;
         letter-spacing: 0.03em;
     }
     .sidebar-help {
-        background: #232e3b;
+        background: #263347;
         border-radius: 12px;
         margin-bottom: 18px;
         padding: 16px 18px;
@@ -64,37 +64,69 @@ st.markdown("""
         background: linear-gradient(90deg, #1976d2 0%, #1565c0 100%) !important;
     }
     h1.main-title {
-        font-size: 2.8em; text-align: center; margin-top: 28px; 
-        color: #90caf9 !important; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 0px;
-        text-shadow: 0 2px 16px #1a223377;
+        font-size: 3.2em; text-align: center; margin-top: 38px; 
+        color: #90caf9 !important; font-weight: 900; letter-spacing: 0.06em; margin-bottom: 0px;
+        text-shadow: 0 2px 24px #1a223355;
+        padding-left: 0.07em;
+        display: flex; align-items: center; justify-content: center;
+        gap: 0.28em;
     }
+    .main-title .logo { font-size: 0.9em; vertical-align: middle; }
     .description {
-        color: #b4c3d8 !important; font-size: 1.22em; text-align: center; margin-bottom: 22px; margin-top: 0;
-        font-weight: 500;
+        color: #b4c3d8 !important; font-size: 1.38em; text-align: center; margin-bottom: 34px; margin-top: 8px;
+        font-weight: 500; max-width: 800px; margin-left: auto; margin-right: auto;
+    }
+    .accent {
+        color: #2979ff; font-weight: 700;
     }
     .steps-bar {
-        background: #232e3b;
-        border-radius: 10px;
-        padding: 15px 0;
-        margin-bottom: 22px;
+        background: rgba(38, 51, 71, 0.78);
+        border-radius: 16px;
+        padding: 20px 0;
+        margin-bottom: 28px;
         text-align: center;
-        font-size: 1.13em;
-        color: #90caf9;
-        font-weight: 700;
+        font-size: 1.24em;
+        color: #b7e0fa;
+        font-weight: 800;
         letter-spacing: 0.06em;
-        box-shadow: 0 2px 6px #1a223333;
+        box-shadow: 0 2px 16px #1a223355;
+        backdrop-filter: blur(6px);
+        border: 2px solid #29426d80;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    @keyframes cardPop {
+        0% { box-shadow: 0 0 0 #0000; }
+        100% { box-shadow: 0 4px 24px #29426d44; }
+    }
+    .main-card {
+        background: #232e3b;
+        border-radius: 14px;
+        padding: 24px 32px;
+        margin: 0 auto 24px auto;
+        box-shadow: 0 4px 24px #1a223355;
+        border: 1.5px solid #29426d;
+        max-width: 920px;
+        animation: cardPop 0.7s;
     }
     .data-link-info {
-        background: #232e3b;
-        border-radius: 12px;
-        padding: 22px;
+        background: linear-gradient(135deg, #263347 0%, #1a2233 100%);
+        border-radius: 18px;
+        padding: 32px 18px;
         text-align: center;
-        font-size: 1.17em;
-        margin-top: 30px;
+        font-size: 1.22em;
+        margin-top: 36px;
         color: #90caf9;
-        border: 2px solid #29426d;
-        box-shadow: 0 2px 14px #29426d33;
-        font-weight: 600;
+        border: 2.5px solid #29426d;
+        box-shadow: 0 8px 32px #29426d33;
+        font-weight: 700;
+        animation: cardPop 0.8s;
+        transition: box-shadow 0.18s;
+    }
+    .data-link-info:hover {
+        box-shadow: 0 12px 44px #2979ff22;
+        border-color: #2979ff;
     }
     .stButton>button, .stDownloadButton>button {
         background: linear-gradient(90deg, #2979ff 0%, #1565c0 100%) !important;
@@ -129,34 +161,31 @@ st.markdown("""
     }
     .stMarkdown, .stCaption {
         color: #b4c3d8 !important;
-        font-size: 1em;
-    }
-    /* Card effect for main content panels */
-    .main-card {
-        background: #232e3b;
-        border-radius: 14px;
-        padding: 24px 32px;
-        margin: 0 auto 24px auto;
-        box-shadow: 0 4px 24px #1a223355;
-        border: 1.5px solid #29426d;
-        max-width: 920px;
+        font-size: 1.04em;
+        text-align: center;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 class='main-title'>ProPhet-BnB</h1>", unsafe_allow_html=True)
+st.markdown("""
+<h1 class='main-title'>
+  <span class='logo'>&#128200;</span> ProPhet-BnB
+</h1>
+""", unsafe_allow_html=True)
+
 st.markdown(
     "<div class='description'>"
-    "Discover powerful analytics for Airbnb-style listings.<br>"
+    "Discover <span class='accent'>powerful analytics</span> for Airbnb-style listings.<br>"
     "<b>ProPhet-BnB</b> helps hosts, investors, and travelers find market insights and pricing predictions.<br>"
     "Select your data source, set preferences, and generate actionable recommendations."
     "</div>", unsafe_allow_html=True
 )
+
 st.markdown(
     "<div class='steps-bar'>"
-    "<span style='color:#fff;'>Step 1:</span> Select Data Source &nbsp;|&nbsp; "
-    "<span style='color:#fff;'>Step 2:</span> Adjust Filters &nbsp;|&nbsp; "
-    "<span style='color:#fff;'>Step 3:</span> Review Analytics"
+    "<span class='accent'>Step 1:</span> Select Data Source &nbsp;|&nbsp; "
+    "<span class='accent'>Step 2:</span> Adjust Filters &nbsp;|&nbsp; "
+    "<span class='accent'>Step 3:</span> Review Analytics"
     "</div>", unsafe_allow_html=True
 )
 
@@ -168,7 +197,7 @@ with st.sidebar:
         "<li>Adjust filters to match your search goals.</li>"
         "<li><b>Click Analyze Listings</b> to find top picks and insights.</li>"
         "<li>For best results, use InsideAirbnb or a clean CSV.</li></ol>"
-        "<br><span style='color:#90caf9;'>New? Click Load Example Data for an instant walkthrough.</span>"
+        "<br><span style='color:#90caf9;'>New? Click Demo Mode for an instant walkthrough.</span>"
         "</div>", unsafe_allow_html=True
     )
 
@@ -555,8 +584,8 @@ if df is not None:
 else:
     st.markdown(
         "<div class='data-link-info'>"
-        "Paste a data link, pick a city, or upload a CSV, then hit <b>Analyze Listings</b> to begin analysis.<br>"
-        "Or use Demo Mode for an instant walkthrough."
+        "Paste a data link, pick a city, or upload a CSV, then hit <b class='accent'>Analyze Listings</b> to begin analysis.<br>"
+        "Or use <span class='accent'>Demo Mode</span> for an instant walkthrough."
         "</div>", unsafe_allow_html=True
     )
 
