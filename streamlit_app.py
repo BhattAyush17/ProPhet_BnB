@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 import pandas as pd
 import streamlit as st
-import plotly.express as px
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
@@ -29,15 +28,15 @@ st.markdown("""
         background-size: cover !important;
     }
     section[data-testid="stSidebar"] {
-        background: rgba(30, 40, 60, 0.90) !important;
-        color: #fff !important;
+        background: rgba(18, 24, 38, 0.96) !important;
+        color: #eaecef !important;
         min-width: 340px !important;
         max-width: 400px !important;
         padding-top: 28px !important;
         padding-bottom: 28px !important;
     }
     .sidebar-content {
-        color: #fff !important;
+        color: #eaecef !important;
         font-size: 1.10em;
         font-weight: 400;
         padding-top: 10px;
@@ -51,12 +50,12 @@ st.markdown("""
         margin-top: 10px;
     }
     .sidebar-radio label, .sidebar-radio div {
-        color: #fff !important;
+        color: #eaecef !important;
         font-size: 1.13em !important;
     }
     .stButton>button, .stDownloadButton>button {
-        background: #3466a3 !important;
-        color: #fff !important;
+        background: #152238 !important;
+        color: #eaecef !important;
         border-radius: 7px !important;
         font-size: 1.10em !important;
         font-weight: 600 !important;
@@ -66,64 +65,74 @@ st.markdown("""
         box-shadow: 0 1px 3px #2227;
     }
     .main-card {
-        background: rgba(255,255,255,0.96);
+        background: rgba(18,24,38,0.93);
         border-radius: 18px;
         margin: 56px auto 0 auto;
         padding: 38px 48px;
-        box-shadow: 0 8px 40px #22304e55;
-        max-width: 800px;
+        box-shadow: 0 8px 40px #22304e75;
+        max-width: 820px;
         text-align: center;
     }
     h1 {
         font-size: 2.65em;
-        color: #22304e;
+        color: #eaecef;
         font-weight: 900;
         margin-bottom: 0.13em;
         letter-spacing: 0.04em;
     }
     .subtitle {
-        color: #3466a3;
+        color: #6bc0ff;
         font-size: 1.19em;
         margin-bottom: 1.2em;
         font-weight: 600;
     }
     .simple-steps {
-        font-size: 1.13em;
-        color: #22304e;
+        font-size: 1.18em;
+        color: #c3cfe6;
         font-weight: 500;
         margin-bottom: 1.2em;
         text-align: left;
         margin: 0 auto 1.2em auto;
         max-width: 60%;
     }
+    .simple-steps b {
+        color: #6bc0ff;
+        font-weight: 700;
+    }
     .data-link-info {
-        background: rgba(240,245,255,0.97);
+        background: rgba(30,36,48,0.96);
         border-radius: 14px;
         padding: 24px 20px;
-        font-size: 1.13em;
-        color: #3466a3;
+        font-size: 1.18em;
+        color: #7bdfff;
         font-weight: 600;
         margin-top: 18px;
         box-shadow: 0 2px 16px #22304e33;
+        text-shadow: 0 1px 6px #15223855;
+    }
+    .data-link-info b, .data-link-info span {
+        color: #fff;
+        font-weight: bold;
     }
     .stCaption {
-        color: #22304e !important;
-        font-size: 1.03em;
+        color: #bfc8db !important;
+        font-size: 1.07em;
         text-align: center;
+        text-shadow: 0 1px 6px #15223855;
     }
     .stTabs [data-baseweb="tab-list"] {
-        background: #f6f8fa;
+        background: #151c28;
         border-radius: 8px;
         padding: 0.5em;
-        color: #222 !important;
+        color: #eaecef !important;
     }
     .stTabs [aria-selected="true"] {
-        color: #3466a3 !important;
+        color: #6bc0ff !important;
         font-weight: bold !important;
-        background: #e3eaf5 !important;
+        background: #222e44 !important;
     }
     label {
-        color: #3466a3 !important;
+        color: #6bc0ff !important;
         font-weight: 600 !important;
     }
     </style>
@@ -254,7 +263,7 @@ if st.session_state.get("df_base") is None:
     st.markdown(
         "<div class='data-link-info'>"
         "Paste a data link, pick a city, or upload a CSV, then hit <b>Analyze Listings</b>.<br>"
-        "Or use Demo Mode for a walkthrough."
+        "Or use <span>Demo Mode</span> for a walkthrough."
         "</div>", unsafe_allow_html=True
     )
 st.markdown("</div>", unsafe_allow_html=True)
@@ -374,7 +383,7 @@ else:
     source_label = st.session_state.get("source_label", "")
 
 if df is not None:
-    st.markdown(f"<div class='main-card'><h2 style='color:#3466a3;'>Source: {source_label}</h2></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='main-card'><h2 style='color:#6bc0ff;'>Source: {source_label}</h2></div>", unsafe_allow_html=True)
 
     metrics, price_col = compute_metrics(df)
     def fmt(v): return f"{v:,.1f}" if v is not None and pd.notnull(v) else "—"
@@ -395,7 +404,7 @@ if df is not None:
 
     with tab_overview:
         st.markdown("<div class='main-card'>", unsafe_allow_html=True)
-        st.markdown("<h3 style='color:#3466a3;'>Overview & Sample</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color:#6bc0ff;'>Overview & Sample</h3>", unsafe_allow_html=True)
         st.caption("Quickly explore your first 25 listings and summary metrics.")
         st.dataframe(df.head(25)[table_cols], height=350)
         kcols = st.columns(6)
