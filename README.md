@@ -1,6 +1,8 @@
 # ProphetBnB: Airbnb Price Prediction & Host Segmentation
 
-![Uploading image.png…]()
+<img width="1785" height="934" alt="image" src="https://github.com/user-attachments/assets/41063a43-fc62-4194-8f21-bd211a19830a" />
+
+
 
 
 Welcome to ProphetBnB, a comprehensive Python project for predicting Airbnb listing prices and segmenting hosts for actionable insights. ProphetBnB combines robust machine learning, interactive visualizations, and a Streamlit web app for seamless exploration of Airbnb data.
@@ -160,7 +162,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Example: Streamlit App
 
-![ProphetBnB App Screenshot](image1)
+<img width="1785" height="934" alt="image" src="https://github.com/user-attachments/assets/07f2436d-8330-4537-b1bb-5f44b308d869" />
+
 
 > **How to Begin:**  
 > 1. Choose your data source from Airbnb, CSV, or web  
