@@ -1,82 +1,90 @@
-# ... imports and setup unchanged ...
+import sys
+from pathlib import Path
+import pandas as pd
+import streamlit as st
+import plotly.express as px
+
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
+
+from src.scraper import scrape_catalog
+from src.downloader import download_dataset
+from src.data_preprocessing import load_data, clean_data
+from src.model_training import train_price_model, cluster_hosts
+from src.recommendation import build_recommendation_scores, filter_by_preferences
+from src.visualizations import parallel_recommendations, radar_for_listing
+from src.ui_theme import inject_base_css
+from src.data_sources.direct_csv_url_source import DirectCSVURLSource
+from src.data_sources.external_site_source import ExternalSiteSource
+from src.metrics import compute_metrics
 
 st.set_page_config(page_title="ProPhet-BnB", layout="wide")
 inject_base_css()
 
+# ---------- Custom CSS for Professional Look ----------
 st.markdown("""
     <style>
-    .stApp { background: #f6f8fa !important; color: #1a1a1a; }
-    section[data-testid="stSidebar"] {
-        background: #f7f9fb !important;
-        border-right: 2px solid #e3eaf5 !important;
-    }
-    .sidebar-section {
-        font-size: 1.15em; color: #15395b; margin-bottom: 8px; margin-top: 8px; font-weight: 700;
-    }
-    .sidebar-help {
-        background: #fff;
-        border-radius: 10px;
-        margin-bottom: 18px;
-        padding: 16px 18px;
+    .stApp {
+        background-color: #f6f8fa !important;
+        font-family: 'Segoe UI','Roboto','Arial',sans-serif;
         color: #212529;
-        font-size: 1.08em;
-        box-shadow: 0 2px 8px rgba(170,180,210,0.07);
-        border: 1px solid #e3eaf5;
     }
-    .sidebar-btn {
-        background: #1976d2 !important;
-        color: #fff !important;
-        border-radius: 6px !important;
-        border: none !important;
-        font-size: 1.08em !important;
-        font-weight: 600 !important;
-        padding: 0.6em 1.8em !important;
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
-        box-shadow: 0 1px 2px #e3eaf5;
+    h1, h2, h3, h4, h5, h6 {
+        color: #1a1a1a !important;
+        font-weight: 700;
     }
-    h1.main-title {
-        font-size: 2.7em; text-align: center; margin-top: 22px; color: #1976d2 !important; font-weight: 900;
-        letter-spacing: 0.5px; margin-bottom: 0px;
+    .main-title {
+        font-size: 2.6em;
+        text-align: center;
+        margin-top: 18px;
+        letter-spacing: 0.5px;
+        margin-bottom: 0px;
+        color: #0056b3 !important;
+        font-weight: 800;
     }
     .description {
-        color: #212529 !important; font-size: 1.22em; text-align: center; margin-bottom: 18px; margin-top: 0;
+        color: #212529 !important;
+        font-size: 1.18em;
+        text-align: center;
+        margin-bottom: 18px;
+        margin-top: 0;
     }
     .steps-bar {
         background: #f3f6f9;
-        border-radius: 8px;
-        padding: 15px 0;
-        margin-bottom: 18px;
+        border-radius: 7px;
+        padding: 14px 0;
+        margin-bottom: 16px;
         text-align: center;
-        font-size: 1.1em;
+        font-size: 1.07em;
         color: #183153;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+    .sidebar-section {
+        font-size: 1.13em;
+        color: #183153;
+        margin-bottom: 10px;
+        margin-top: 12px;
         font-weight: 600;
     }
-    .data-link-info {
-        background: #f8fafc;
-        border-radius: 10px;
-        padding: 18px;
-        text-align: center;
-        font-size: 1.14em;
-        margin-top: 25px;
+    .sidebar-help {
+        background: #f8fafd;
+        border-radius: 8px;
+        margin-bottom: 14px;
+        padding: 12px 16px;
         color: #22355a;
-        border: 1.5px solid #e3eaf5;
-        box-shadow: 0 2px 8px #e3eaf5;
+        font-size: 1em;
+        box-shadow: 0 1px 4px rgba(170,180,210,0.07);
     }
-    .stButton>button, .stDownloadButton>button {
-        background-color: #1976d2 !important;
-        color: #fff !important;
-        border-radius: 6px !important;
-        font-size: 1.08em !important;
-        font-weight: 600 !important;
-        padding: 0.55em 1.7em !important;
-        margin: 10px 0 !important;
-        border: none !important;
-        box-shadow: 0 1px 2px #e3eaf5;
-    }
-    .stButton>button:disabled {
-        background-color: #cccccc !important;
-        color: #888 !important;
+    .data-link-info {
+        background: #f0f4f8;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        font-size: 1.15em;
+        margin-top: 20px;
+        color: #35527c;
     }
     .stTabs [data-baseweb="tab-list"] {
         background: #f8fafd;
@@ -85,13 +93,55 @@ st.markdown("""
         color: #1a1a1a !important;
     }
     .stTabs [aria-selected="true"] {
-        color: #1976d2 !important;
+        color: #0056b3 !important;
         font-weight: bold !important;
         background: #e3eaf5 !important;
     }
-    label, .stSelectbox label, .stSlider label, .stTextInput label {
-        color: #183153 !important;
-        font-weight: 600 !important;
+    .stButton>button {
+        background-color: #1976d2 !important;
+        color: #fff !important;
+        border-radius: 6px;
+        border: none;
+        font-size: 1.07em;
+        font-weight: 600;
+        padding: 0.45em 1.5em;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+    .stButton>button:disabled {
+        background-color: #cccccc !important;
+        color: #888 !important;
+    }
+    .stDownloadButton>button {
+        background-color: #0056b3 !important;
+        color: #fff !important;
+        border-radius: 6px;
+        border: none;
+        font-size: 1.03em;
+        font-weight: 600;
+        padding: 0.35em 1.2em;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+    .stCaption, .stMarkdown {
+        color: #505A6A !important;
+        font-size: 1em;
+    }
+    section[data-testid="stSidebar"] {
+        background-color: #f5f7fa !important;
+        border-right: 1.5px solid #e3eaf5 !important;
+    }
+    .stDataFrame, .stTable, .stSelectbox, .stTextInput, .stSlider, .stCheckbox {
+        background-color: #fff !important;
+        color: #212529 !important;
+    }
+    label {
+        color: #15395b !important;
+        font-weight: 500 !important;
+    }
+    .stTabs [role="tab"] h4 {
+        color: #1a1a1a !important;
+        font-weight: 700 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -105,23 +155,25 @@ st.markdown(
 )
 st.markdown(
     "<div class='steps-bar'>"
-    "<b>Step 1:</b> Select Data Source &nbsp;|&nbsp; <b>Step 2:</b> Adjust Filters &nbsp;|&nbsp; <b>Step 3:</b> Review Analytics"
+    "<b>Step 1:</b> Select Data Source &nbsp;|&nbsp; "
+    "<b>Step 2:</b> Adjust Filters &nbsp;|&nbsp; "
+    "<b>Step 3:</b> Review Analytics"
     "</div>", unsafe_allow_html=True
 )
 
 with st.sidebar:
-    st.markdown("<div class='sidebar-section'>Getting Started</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sidebar-section'><b>Getting Started</b></div>", unsafe_allow_html=True)
     st.markdown(
         "<div class='sidebar-help'>"
-        "<ol style='margin-left: -1em;'><li>Choose property data source.</li>"
-        "<li>Adjust filters to match your preferences.</li>"
-        "<li><b>Click Analyze Listings</b> to start.<br>"
-        "For best results, use InsideAirbnb or a clean CSV.</li></ol>"
+        "1. Choose property data source.<br>"
+        "2. Adjust filters to match your preferences.<br>"
+        "3. Click <b>Analyze Listings</b> to start.<br>"
+        "For best results, use InsideAirbnb or a clean CSV."
         "</div>", unsafe_allow_html=True
     )
 
 st.sidebar.header("1. Data Source")
-st.sidebar.caption("Select how you'd like to provide listing data.")
+st.sidebar.caption("Select how you'd like to provide listing data. ℹ️")
 source_mode = st.sidebar.radio(
     "Choose Source Type",
     [
@@ -132,8 +184,8 @@ source_mode = st.sidebar.radio(
     ]
 )
 st.sidebar.caption("Each source type loads listings differently. Hover for help.")
-st.sidebar.caption("Not sure where to start? Try demo mode for instant results.")
 
+# ------------- DEMO/EXAMPLE DATA BUTTON -------------
 def get_demo_df():
     return pd.DataFrame({
         "id": range(1, 11),
@@ -153,7 +205,8 @@ def get_demo_df():
 if "demo_mode" not in st.session_state:
     st.session_state["demo_mode"] = False
 
-if st.sidebar.button("Load Example Data", key="demo_btn", help="Try an instant walkthrough with demo data."):
+st.sidebar.caption("Not sure where to start? Try demo mode for instant results.")
+if st.sidebar.button("Load Example Data"):
     st.session_state["df_base"] = get_demo_df()
     st.session_state["source_label"] = "Demo Example Data"
     st.session_state["demo_mode"] = True
@@ -168,7 +221,7 @@ catalog = None
 if source_mode == "InsideAirbnb Snapshot":
     with st.sidebar:
         st.markdown("#### InsideAirbnb City/Date Picker")
-        st.caption("Pick country, region, city, and date.")
+        st.caption("Pick country, region, city, and date. ℹ️")
         @st.cache_data(show_spinner=False)
         def get_catalog():
             return scrape_catalog()
@@ -178,31 +231,31 @@ if source_mode == "InsideAirbnb Snapshot":
             st.error(f"Could not load city catalog: {e}")
             st.stop()
         countries = sorted(catalog.keys())
-        country = st.selectbox("Country", countries)
-        region = st.selectbox("Region", sorted(catalog[country].keys()))
-        city = st.selectbox("City", sorted(catalog[country][region].keys()))
+        country = st.selectbox("Country", countries, help="Select your country for listing data.")
+        region = st.selectbox("Region", sorted(catalog[country].keys()), help="Select the region within your country.")
+        city = st.selectbox("City", sorted(catalog[country][region].keys()), help="Choose the city to analyze.")
         city_entry = catalog[country][region][city]
         dates = sorted(city_entry.versions.keys(), reverse=True)
-        date = st.selectbox("Snapshot Date", dates, index=0)
+        date = st.selectbox("Snapshot Date", dates, index=0, help="Choose the dataset date (latest recommended).")
         st.caption(f"Latest available date: {city_entry.latest_date}")
-        force_download = st.checkbox("Force Fresh Download", value=False)
-        custom_url = st.text_input("Custom Listings URL (override)", "", placeholder="https://insideairbnb.com/data/.../listings.csv.gz")
+        force_download = st.checkbox("Force Fresh Download", value=False, help="Force download instead of using cache.")
+        custom_url = st.text_input("Custom Listings URL (override)", "", placeholder="https://insideairbnb.com/data/.../listings.csv.gz", help="Paste a custom listings CSV URL if you want.")
         version = city_entry.versions[date]
 elif source_mode == "Local CSV Upload":
-    uploaded_listings = st.sidebar.file_uploader("Listings CSV", type=["csv"])
-    uploaded_reviews = st.sidebar.file_uploader("Reviews CSV (optional)", type=["csv"])
+    uploaded_listings = st.sidebar.file_uploader("Listings CSV", type=["csv"], help="Upload your own listings CSV file.")
+    uploaded_reviews = st.sidebar.file_uploader("Reviews CSV (optional)", type=["csv"], help="Optionally upload reviews CSV for more analytics.")
 elif source_mode == "Direct CSV URL":
-    csv_url = st.sidebar.text_input("Paste Direct CSV URL", "", placeholder="https://.../listings.csv")
+    csv_url = st.sidebar.text_input("Paste Direct CSV URL", "", placeholder="https://.../listings.csv", help="Paste the direct CSV URL from a trusted source.")
 elif source_mode == "Website (Custom Scraper)":
-    site_url = st.sidebar.text_input("Paste Listing Website Link", "", placeholder="https://www.example.com/listings")
+    site_url = st.sidebar.text_input("Paste Listing Website Link", "", placeholder="https://www.example.com/listings", help="Paste a link to a website with listings.")
     with st.sidebar.expander("Advanced Scraper Settings"):
-        listing_selector = st.text_input("Listing CSS Selector", value=".listing-card")
-        price_selector = st.text_input("Price CSS Selector", value=".price")
-        name_selector = st.text_input("Name CSS Selector", value=".name")
-        image_selector = st.text_input("Image CSS Selector", value="img")
+        listing_selector = st.text_input("Listing CSS Selector", value=".listing-card", help="CSS selector for each listing card.")
+        price_selector = st.text_input("Price CSS Selector", value=".price", help="CSS selector for price element.")
+        name_selector = st.text_input("Name CSS Selector", value=".name", help="CSS selector for listing name.")
+        image_selector = st.text_input("Image CSS Selector", value="img", help="CSS selector for image.")
 
 st.sidebar.header("2. Adjust Filters")
-st.sidebar.caption("Filter listings by price, reviews, ratings, and more.")
+st.sidebar.caption("Filter listings by price, reviews, ratings, and more. ℹ️")
 default_filters = {
     "price_mode": "Budget",
     "custom_price_range": (0.0, 10000.0),
@@ -215,14 +268,14 @@ default_filters = {
 }
 uf = st.session_state.get("user_filters", default_filters.copy())
 
-uf["suggestions"] = st.sidebar.slider("Suggestions to Show", 3, 10, uf.get("suggestions", 6))
-uf["price_mode"] = st.sidebar.radio("Price Band", ["Budget", "Comfort", "Premium", "Custom Range"], index=["Budget","Comfort","Premium","Custom Range"].index(uf.get("price_mode", "Budget")))
+uf["suggestions"] = st.sidebar.slider("Suggestions to Show", 3, 10, uf.get("suggestions", 6), help="Number of top listings to show in recommendations.")
+uf["price_mode"] = st.sidebar.radio("Price Band", ["Budget", "Comfort", "Premium", "Custom Range"], index=["Budget","Comfort","Premium","Custom Range"].index(uf.get("price_mode", "Budget")), help="Select your price preference.")
 if uf["price_mode"] == "Custom Range":
-    uf["custom_price_range"] = st.sidebar.slider("Custom Price Range [$]", 0.0, 10000.0, uf.get("custom_price_range", (0.0, 10000.0)))
-uf["reviews_range"] = st.sidebar.slider("Reviews Count", 0, 1000, uf.get("reviews_range", (0, 1000)))
-uf["stars_range"] = st.sidebar.slider("Rating (Stars)", 1.0, 5.0, uf.get("stars_range", (1.0, 5.0)), 0.5)
-uf["availability_range"] = st.sidebar.slider("Availability Days", 0, 365, uf.get("availability_range", (0, 365)))
-uf["occupancy_group"] = st.sidebar.selectbox("Guest Group", ["Any", "Solo (1)", "Duo (2)", "Small group (3-4)", "Family (5-6)", "Large (7+)"], index=["Any","Solo (1)","Duo (2)","Small group (3-4)","Family (5-6)","Large (7+)"].index(uf.get("occupancy_group", "Any")))
+    uf["custom_price_range"] = st.sidebar.slider("Custom Price Range [$]", 0.0, 10000.0, uf.get("custom_price_range", (0.0, 10000.0)), help="Set your own price range for listings.")
+uf["reviews_range"] = st.sidebar.slider("Reviews Count", 0, 1000, uf.get("reviews_range", (0, 1000)), help="Filter by number of reviews.")
+uf["stars_range"] = st.sidebar.slider("Rating (Stars)", 1.0, 5.0, uf.get("stars_range", (1.0, 5.0)), 0.5, help="Minimum and maximum star rating.")
+uf["availability_range"] = st.sidebar.slider("Availability Days", 0, 365, uf.get("availability_range", (0, 365)), help="How many days per year the listing is available.")
+uf["occupancy_group"] = st.sidebar.selectbox("Guest Group", ["Any", "Solo (1)", "Duo (2)", "Small group (3-4)", "Family (5-6)", "Large (7+)"], index=["Any","Solo (1)","Duo (2)","Small group (3-4)","Family (5-6)","Large (7+)"].index(uf.get("occupancy_group", "Any")), help="How many guests will stay?")
 st.session_state["user_filters"] = uf
 
 run_clicked = st.sidebar.button("Analyze Listings", type="primary")
@@ -361,7 +414,7 @@ if df is not None:
 
     with tab_overview:
         st.markdown("#### Overview & Sample")
-        st.caption("Quickly explore your first 25 listings and summary metrics.")
+        st.caption("Quickly explore your first 25 listings and summary metrics. ℹ️")
         st.dataframe(df.head(25)[table_cols], height=350)
         kcols = st.columns(6)
         metrics_display = [
@@ -378,7 +431,7 @@ if df is not None:
 
     with tab_recommend:
         st.subheader("Top Suggested Listings")
-        st.caption("Ranked by your selected preferences.")
+        st.caption("Ranked by your selected preferences. ℹ️")
         recomm_df = df.sort_values("total_score", ascending=False).head(uf["suggestions"])
         rec_cols = [c for c in ["id", "name", "neighbourhood", "room_type", price_col, "review_scores_rating", img_col] if c in recomm_df.columns]
         st.dataframe(recomm_df[rec_cols], height=400)
@@ -409,7 +462,7 @@ if df is not None:
 
     with tab_compare:
         st.subheader("Compare Top Picks (Visual & Images)")
-        st.caption("Visualize and compare your top recommendations side-by-side.")
+        st.caption("Visualize and compare your top recommendations side-by-side. ℹ️")
         pfig = parallel_recommendations(recomm_df, max_recs=uf["suggestions"])
         if pfig:
             st.plotly_chart(pfig, use_container_width=True)
@@ -433,7 +486,7 @@ if df is not None:
             if not row.empty and "name" in row.columns:
                 return f"{row.iloc[0]['name']} ({row.iloc[0]['neighbourhood']})"
             return str(x)
-        chosen_id = st.selectbox("Select Listing for Radar", recomm_df["id"], format_func=format_listing)
+        chosen_id = st.selectbox("Select Listing for Radar", recomm_df["id"], format_func=format_listing, help="Pick a listing to view full score breakdown.")
         rrow = recomm_df[recomm_df["id"] == chosen_id]
         if not rrow.empty:
             rrow = rrow.iloc[0]
@@ -451,19 +504,20 @@ if df is not None:
 
     with tab_scatter3d:
         st.subheader("3D Scatter Plot")
-        st.caption("Explore listings across three dimensions.")
+        st.caption("Explore listings across three dimensions. ℹ️")
         numeric_cols = get_numeric_cols(df)
         if len(numeric_cols) < 3:
             st.info("Not enough numeric columns for 3D scatter plot.")
         else:
-            x_col = st.selectbox("X axis", numeric_cols, index=0, key="3d_x")
-            y_col = st.selectbox("Y axis", numeric_cols, index=1 if len(numeric_cols) > 1 else 0, key="3d_y")
-            z_col = st.selectbox("Z axis", numeric_cols, index=2 if len(numeric_cols) > 2 else 0, key="3d_z")
+            x_col = st.selectbox("X axis", numeric_cols, index=0, key="3d_x", help="Choose X-axis feature")
+            y_col = st.selectbox("Y axis", numeric_cols, index=1 if len(numeric_cols) > 1 else 0, key="3d_y", help="Choose Y-axis feature")
+            z_col = st.selectbox("Z axis", numeric_cols, index=2 if len(numeric_cols) > 2 else 0, key="3d_z", help="Choose Z-axis feature")
             color_col = st.selectbox(
                 "Color by",
                 [c for c in df.columns if df[c].nunique() < 50 and df[c].dtype == object],
                 index=0,
-                key="3d_color"
+                key="3d_color",
+                help="Color points by category"
             ) if any(df[c].nunique() < 50 and df[c].dtype == object for c in df.columns) else None
             fig3d = px.scatter_3d(
                 df,
